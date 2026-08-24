@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "XE-Luogu(氙-Luogu) XLG",
-  "version": "0.9.3",
+  "version": "0.9.3.1",
   "description": "洛谷页面增强——题目/讨论区增强、阅读优化、代码统计、数据概览等。数据仅本地使用，绝不外传。",
   "permissions": ["storage", "alarms"],
   "update_url": "https://raw.githubusercontent.com/Trie2025/HLG-GX/main/release/update.xml",
