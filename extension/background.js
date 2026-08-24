@@ -1,6 +1,6 @@
 // XE-Luogu(氙-Luogu) XLG - 后台 Service Worker
 // 职责：提供 storage 读写（替代 GM_* 系列）、跨域请求代理（替代 GM_xmlhttpRequest）、版本更新检测
-const UPDATE_CHECK_URL = 'https://raw.githubusercontent.com/Trie2025/HLG-GX/main/version.json';
+const UPDATE_CHECK_URL = 'https://raw.githubusercontent.com/Trie2025/HLG-GX/main/release/version.json';
 const UPDATE_KEY = 'hlg_update'; // { version, url, checkedAt }
 
 chrome.runtime.onInstalled.addListener((details) => {

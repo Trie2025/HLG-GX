@@ -4,7 +4,7 @@
   "version": "0.9.3",
   "description": "洛谷页面增强——题目/讨论区增强、阅读优化、代码统计、数据概览等。数据仅本地使用，绝不外传。",
   "permissions": ["storage", "alarms"],
-  "update_url": "https://raw.githubusercontent.com/Trie2025/HLG-GX/main/update.xml",
+  "update_url": "https://raw.githubusercontent.com/Trie2025/HLG-GX/main/release/update.xml",
   "host_permissions": [
     "<all_urls>",
     "https://www.luogu.com.cn/*",
