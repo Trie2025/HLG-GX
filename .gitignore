@@ -1,0 +1,17 @@
+# 私钥——绝不提交
+*.pem
+
+# 打包产物
+HLG.crx
+hhoj.zip
+HLG/
+*.crx
+*.zip
+
+# 一次性/临时脚本与日志
+_fetch*.ps1
+_verify*
+_audit.js
+_testlatex.js
+_latexmod.js
+*.log
