@@ -1,0 +1,60 @@
+{
+  "manifest_version": 3,
+  "name": "XLG",
+  "version": "1.0.1",
+  "description": "洛谷增强扩展——题目/讨论区增强、阅读优化、等级分趋势、数据概览、文章剪贴板恢复等。数据仅本地使用，绝不外传。",
+  "permissions": ["storage", "alarms"],
+  "update_url": "https://raw.githubusercontent.com/Trie2025/HLG-GX/main/release/update.xml",
+  "host_permissions": [
+    "<all_urls>",
+    "https://www.luogu.com.cn/*",
+    "https://www.luogu.com/*",
+    "https://luogu.amlg.top/*",
+    "https://www.luogu.me/*",
+    "https://lab.magiconch.com/*",
+    "https://api.luogu.me/*",
+    "https://luogu.ac.cn/*",
+    "https://raw.githubusercontent.com/*",
+    "https://api.github.com/*",
+    "https://bens.rotriw.com/*",
+    "https://kenkoooo.com/*",
+    "https://codeforces.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup/index.html",
+    "default_title": "XLG",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.luogu.com.cn/*", "https://www.luogu.com/*"],
+      "js": ["content/main.js"],
+      "css": ["content/main.css"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://www.luogu.com.cn/article/*",
+        "https://www.luogu.com.cn/paste/*",
+        "https://www.luogu.com.cn/user/*",
+        "https://www.luogu.com/article/*",
+        "https://www.luogu.com/paste/*",
+        "https://www.luogu.com/user/*"
+      ],
+      "js": ["lib/luogu-renderer.min.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

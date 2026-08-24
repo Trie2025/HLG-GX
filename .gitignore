@@ -1,0 +1,24 @@
+# 私钥——绝不提交
+*.pem
+
+# 打包产物
+HLG.crx
+hhoj.zip
+HLG/
+*.crx
+*.zip
+
+# 一次性/临时脚本与日志
+_fetch*.ps1
+_verify*
+_audit.js
+_testlatex.js
+_latexmod.js
+_balcheck.py
+_syntcheck.py
+*.log
+
+# 非插件部分——不随仓库推送（参考脚本 / 临时脚本 / 其他项目模块 / 专栏旧文）
+参考脚本/
+plugin.py
+专栏文章-介绍XE-Luogu.md

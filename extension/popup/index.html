@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="app">
+    <!-- ===== 顶栏品牌 ===== -->
+    <header class="app-header">
+      <div class="brand">
+        <img class="brand-logo" src="../icons/icon48.png" alt="XLG" />
+        <div class="brand-text">
+          <div class="brand-title">XLG 扩展设置</div>
+          <div class="brand-sub">洛谷增强扩展</div>
+        </div>
+        <div class="ver-chip" id="brand-version">v?.?.?</div>
+      </div>
+    </header>
+
+    <!-- ===== 数据概览 ===== -->
+    <section class="card hero" id="stats-section">
+      <div class="card-head">
+        <span class="card-title">数据概览</span>
+        <button id="crawl-btn" class="btn btn-ghost btn-sm">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          <span>重新获取</span>
+        </button>
+      </div>
+      <div id="stats-body" class="stats-loading">正在加载…</div>
+    </section>
+
+    <!-- ===== 版本更新 ===== -->
+    <section class="card" id="update-section">
+      <div class="card-head">
+        <span class="card-title">版本更新</span>
+        <button id="check-update-btn" class="btn btn-ghost btn-sm">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.35-6.2"/><polyline points="21 3 21 9 15 9"/></svg>
+          <span>检查更新</span>
+        </button>
+      </div>
+      <div id="update-body" class="update-info">
+        <div class="update-versions">
+          <span>当前 <b id="upd-current">v?.?.?</b></span>
+          <span>最新 <b id="upd-latest">检测中…</b></span>
+        </div>
+        <div id="update-action"></div>
+      </div>
+    </section>
+
+    <!-- ===== 功能开关 ===== -->
+    <section class="card">
+      <div class="card-head"><span class="card-title">功能开关</span></div>
+      <div id="settings-list" class="settings"></div>
+    </section>
+
+    <!-- ===== 主题色 ===== -->
+    <section class="card">
+      <div class="card-head"><span class="card-title">主题色</span></div>
+      <div class="color-row">
+        <input type="color" id="theme-color" value="#4f46e5">
+        <span id="theme-color-text" class="color-hex">#4f46e5</span>
+      </div>
+    </section>
+
+    <footer class="app-footer">
+      <span>数据仅本地使用</span>
+    </footer>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
