@@ -154,7 +154,7 @@ function renderUpdate(info) {
   const latEl = $('#upd-latest');
   const actEl = $('#update-action');
   if (!curEl || !latEl || !actEl) return;
-  curEl.textContent = DISPLAY_VERSION;
+  curEl.textContent = 'v' + (chrome.runtime.getManifest().version || '0.0.0');
   actEl.innerHTML = '';
 
   if (info.error) {

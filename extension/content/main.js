@@ -2429,6 +2429,12 @@
             '</div>' +
             '<span class="aml-sp-desc">授权开关 · 数据仅保存在本地浏览器，不会上传到任何服务器。</span>' +
           '</div>' +
+          '<div class="aml-more-sec-title">版本与更新</div>' +
+          '<div class="aml-hs-upd-row">' +
+            '<div class="aml-hs-upd-item"><div class="v" id="aml-more-upd-cur">' + DISPLAY_VERSION + '</div><div class="l">当前版本</div></div>' +
+            '<div class="aml-hs-upd-item"><div class="v" id="aml-more-upd-lat">—</div><div class="l">最新版本</div></div>' +
+          '</div>' +
+          '<div class="aml-hs-upd-act" id="aml-more-upd-act"><span class="txt">正在检查更新…</span></div>' +
         '</div>' +
         '<div class="aml-more-footer">数据仅本地使用 · ' + DISPLAY_VERSION + '</div>' +
       '</div>';
@@ -2507,6 +2513,8 @@
     if (!box) { box = buildMoreSettings(); document.body.appendChild(box); }
     moreOpen = true;
     box.classList.add('open');
+    // 触发弹窗内的版本更新检查（复用 checkUpdate，渲染到 modal 专用的 id）
+    checkHsUpdate({ curId: 'aml-more-upd-cur', latId: 'aml-more-upd-lat', actId: 'aml-more-upd-act' });
     // 同步抽屉面板的常用开关为最新值（避免抽屉打开后值不一致）
     const p = $('.aml-settings-panel');
     if (p) p.querySelectorAll('input[type="checkbox"]').forEach((cb) => { cb.checked = !!S[cb.dataset.key]; });
@@ -2531,19 +2539,21 @@
   }
 
   // ============ /help 页的"版本与更新"展示（复用 background 的 checkUpdate） ============
-  function renderHsUpdate(info) {
-    const cur = $('#aml-hs-upd-cur');
-    const lat = $('#aml-hs-upd-lat');
-    const act = $('#aml-hs-upd-act');
+  function renderHsUpdate(info, ids) {
+    ids = ids || {};
+    const cur = $('#' + (ids.curId || 'aml-hs-upd-cur'));
+    const lat = $('#' + (ids.latId || 'aml-hs-upd-lat'));
+    const act = $('#' + (ids.actId || 'aml-hs-upd-act'));
     if (!cur || !lat || !act) return;
-    cur.textContent = DISPLAY_VERSION;
+    // 当前版本显示真实内部版本（与「最新」的小数点格式一致，避免 V0.9-test 与 v0.9.3 的显示歧义）
+    cur.textContent = 'v' + (chrome.runtime.getManifest().version || '0.0.0');
     act.innerHTML = '';
     if (!info || info.error) {
       lat.textContent = '检测失败';
       lat.classList.remove('new');
-      act.innerHTML = '<a class="aml-btn aml-btn-ghost aml-btn-block" href="javascript:void(0)" id="aml-hs-upd-retry">' + svgIcon('refresh', 14) + '<span>重新检查</span></a>';
-      const retry = act.querySelector('#aml-hs-upd-retry');
-      if (retry) retry.addEventListener('click', () => { act.innerHTML = '<span class="txt">正在检查更新…</span>'; checkHsUpdate(); });
+      act.innerHTML = '<a class="aml-btn aml-btn-ghost aml-btn-block" href="javascript:void(0)" id="' + (ids.actId ? ids.actId + '-retry' : 'aml-hs-upd-retry') + '">' + svgIcon('refresh', 14) + '<span>重新检查</span></a>';
+      const retry = act.querySelector('a[id$="-retry"]');
+      if (retry) retry.addEventListener('click', () => { act.innerHTML = '<span class="txt">正在检查更新…</span>'; checkHsUpdate(ids); });
       return;
     }
     if (info.unreachable) {
@@ -2561,12 +2571,12 @@
     }
   }
 
-  async function checkHsUpdate() {
+  async function checkHsUpdate(ids) {
     try {
       const info = await chrome.runtime.sendMessage({ type: 'checkUpdate' });
-      renderHsUpdate(info || { error: true });
+      renderHsUpdate(info || { error: true }, ids);
     } catch (e) {
-      renderHsUpdate({ error: true });
+      renderHsUpdate({ error: true }, ids);
     }
   }
 
@@ -2969,14 +2979,23 @@
         const authSel = ctn.querySelector('.am-comment-author, [class*="author"], [class*="user-name"], [class*="name"]');
         if (authSel) author = (authSel.textContent || '').trim();
         let body = '';
-        const contentEl = ctn.querySelector('.lfe-marked-wrap, .lfe-marked, [class*="markdown"], .am-comment-content, [class*="content"]');
-        if (contentEl) {
-          try { body = htmlToMd(contentEl) || contentEl.textContent || ''; }
-          catch (e) { body = contentEl.textContent || ''; }
+        // 只取 Markdown 正文容器（.lfe-marked），避开「作者/时间/举报 回复 复制内容」头部行；
+        // 头部行不在被渲染的 marked 内容里，用它做来源可天然杜绝元信息污染引用。
+        const bodyEl = ctn.querySelector('.lfe-marked-wrap .lfe-marked, .lfe-marked, .lfe-marked-wrap')
+          || ctn.querySelector('.am-comment-content, [class*="markdown"]:not([class*="author"])');
+        if (bodyEl) {
+          try { body = htmlToMd(bodyEl) || bodyEl.textContent || ''; }
+          catch (e) { body = bodyEl.textContent || ''; }
+        } else {
+          body = ctn.textContent || '';
         }
-        body = (body || ctn.textContent || '').replace(/\u00a0/g, ' ').replace(/\s+/g, ' ').trim();
-        // 剔除原贴自带的操作文字，避免污染引用内容
-        body = body.replace(/回复|举报|复制内容|置顶|删除|收藏|转载|展开|收起|表情/ig, '').replace(/\s+/g, ' ').trim();
+        body = (body || '').replace(/\u00a0/g, ' ').replace(/\s+/g, ' ').trim();
+        // 剔除原贴自带的操作文字，避免污染引用内容；并清除「回复于 X 分钟前」等残留时间 token
+        body = body
+          .replace(/回复|举报|复制内容|置顶|删除|收藏|转载|展开|收起|表情/ig, '')
+          .replace(/[|]\s*(刚刚|N\s*分钟前|[0-9一二三四五六七八九十]+\s*(分钟|小时|天|年|月)前|\d{2}:\d{2})\s*[|]/gi, '|')
+          .replace(/回复于\s*([0-9一二三四五六七八九十]+\s*(分钟|小时|天|年|月)前|刚刚)/ig, '')
+          .replace(/\s+/g, ' ').trim();
         if (!body) return '';
         let lines = body.slice(0, 500).split('\n').map((l) => '> ' + l).join('\n');
         if (author) lines = '> **@' + author + '**：' + (lines ? '\n' + lines : '');
@@ -4216,12 +4235,30 @@
     try {
       if (!S.defaultCode) return;
       if (!/\/problem\//.test(location.pathname)) return;
-      // 仅命中代码提交框：优先 IDE/代码编辑器，其次显式带有代码类名的 textarea
-      const editor = $('.lg-ide textarea, .markdown-editor textarea, [class*="code-editor"] textarea, [class*="code-textarea"] textarea, .lg-edit-code textarea');
-      if (editor && !(editor.value || '').trim()) {
-        // 兜底排除：含"内容/评论/回复/表情/标题"等占位的一律跳过，绝不误填非代码输入框
-        if (editor.placeholder && /内容|评论|回复|表情|标题/i.test(editor.placeholder)) return;
-        editor.value = S.defaultCode;
+      const code = String(S.defaultCode).trim();
+      if (!code) return;
+      // 只认真正的代码编辑框，绝不落到 Markdown(评论/讨论/题解) 输入框。
+      // 不再用 $() 只取第一个，改为遍历所有候选并逐一排除非代码输入框。
+      const cands = $all('.lg-ide textarea, .cm-editor textarea, .ace_text-input, .CodeMirror textarea, [class*="code-editor"] textarea, [class*="code-textarea"] textarea, .lg-edit-code textarea, textarea[placeholder*="#include"]');
+      const isCodeField = (ta) => {
+        const hit = [ta.placeholder, ta.getAttribute('aria-label'), (ta.closest('[class*="editor"]') || {}).className || '', ta.className].join(' ');
+        return !/内容|评论|回复|表情|标题|简介|正文|描述|题解|讨论|犇犇|说说|来自/i.test(hit);
+      };
+      let filled = false;
+      cands.forEach((ta) => {
+        if ((ta.value || '').trim()) return;     // 已有内容不覆盖
+        if (!isCodeField(ta)) return;            // 非代码输入框跳过
+        ta.value = code;
+        filled = true;
+        try { ta.dispatchEvent(new Event('input', { bubbles: true })); } catch (e) {}
+      });
+      // 兜底：显式带代码占位的 textarea（如「在此输入代码」）
+      if (!filled) {
+        const ta = $('textarea[placeholder*="#include"], textarea[placeholder*="代码"], textarea[aria-label*="代码"]');
+        if (ta && !(ta.value || '').trim() && isCodeField(ta)) {
+          ta.value = code;
+          try { ta.dispatchEvent(new Event('input', { bubbles: true })); } catch (e) {}
+        }
       }
     } catch (e) {}
   }
